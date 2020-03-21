@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\DB;
 
 class TasksController extends Controller
 {
+    private static $respJson = array(
+        "status" => "",
+        "message" => "No results",
+        "data" => ""
+    );
     /**
      * Display a listing of the resource.
      *
@@ -16,13 +21,7 @@ class TasksController extends Controller
      */
     public function index()
     {
-        $respJson = (array) array(
-            "status" => "",
-            "message" => "",
-            "data" => ""
-        );
-
-        
+        $respJson = self::$respJson;
         try {
             $respJson["data"] = Tasks::getAll()->toJson();
         } catch(\Exception $e){
@@ -31,7 +30,6 @@ class TasksController extends Controller
             $respJson["line"] = strval($e->getLine());
             $respJson["trace"] = $e->getTraceAsString();
         }
-        
         return response()->json($respJson);
     }
 
@@ -40,9 +38,28 @@ class TasksController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        $respJson = self::$respJson;
+        try {
+            $params = $request->all();
+            $keys = ["label"];
+            $params = array_intersect_key($params, array_flip($keys));
+            if (empty($params) === false) {
+                $label = filter_var($params["label"], FILTER_SANITIZE_STRING);
+                if (empty($label) === false) {
+                    DB::table("tasks")->insert(["label" => $label]);
+                    dd($label);
+                }
+            }
+            $respJson["data"] = Tasks::getAll()->toJson();
+        } catch(\Exception $e){
+            $respJson["status"] = "Error";
+            $respJson["message"] = $e->getMessage();
+            $respJson["line"] = strval($e->getLine());
+            $respJson["trace"] = $e->getTraceAsString();
+        }
+        return response()->json($respJson);
     }
 
     /**

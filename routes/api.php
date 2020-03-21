@@ -19,3 +19,7 @@ Route::get("/tasks/all", function(){
     $contr = new TasksController();
     return $contr->index();
 });
+Route::post("task/new", function(Request $request){
+    $contr = new TasksController();
+    $contr->create($request);
+});

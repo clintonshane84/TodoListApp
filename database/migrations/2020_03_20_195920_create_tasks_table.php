@@ -20,6 +20,7 @@ class CreateTasksTable extends Migration
             $table->text("description");
             $table->datetime("due_date");
             $table->boolean("complete");
+            $table->unsignedTinyInteger("priority");
         });
     }
 
