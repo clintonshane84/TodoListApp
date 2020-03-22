@@ -17,10 +17,10 @@ class CreateTasksTable extends Migration
             $table->smallIncrements("id");
             $table->timestamps();
             $table->string("label", 191);
-            $table->text("description");
-            $table->datetime("due_date");
-            $table->boolean("complete");
-            $table->unsignedTinyInteger("priority");
+            $table->text("description")->nullable(true);
+            $table->datetime("due_date")->nullable(true);
+            $table->boolean("complete")->default(0);
+            $table->unsignedTinyInteger("priority")->default(0);
         });
     }
 

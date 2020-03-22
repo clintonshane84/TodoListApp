@@ -1,22 +1,50 @@
-function waitForMyToDo(cb) {
- if (Object.prototype.toString.call(cb) === "[object Function]") {
-  var timeStart = Date.now();
-  while (true) {
-   if (typeof mytodo !== "undefined") {
-    cb();
-    break;
-   } else if (((Date.now() - timeStart) / 1000) < 10) {
-    break;
-   }
-  }
- }
-}
+/*
+ * Seperated the parts of my mytodo object to be loaded like modules
+ * 
+ * @name MyToDo
+ * @namespace mytodo
+ * @author Clinton Wright <clintonshanewright@gmail.com>
+ */
+
+// Initiliaze the tasks module
 waitForMyToDo(function() {
+	// Setup our Task API calls
  mytodo.apis.tasks = {
+   /*
+    * Fetch all tasks from our API
+    * 
+    * @function mytodo.apis.tasks.getAll
+    * @memberto mytodo
+    * @return Array
+    */
   getAll: function() {
 	  return mytodo.handlers.ajax.get("/api/tasks/all");
+  },
+  /*
+   * Fetch the task records and load into the page
+   * 
+   * @function mytodo.handlers.vue.tasks.load
+   * @memberto mytodo
+   * @return Promise
+   */
+  insert: function(lbl) {
+      return mytodo.handlers.ajax.standardAjaxHandler(()=>{
+          var cForm = new FormData();
+          cForm.append("label", lbl);
+          return mytodo.handlers.ajax.post.form(cForm, "/api/task/new");
+  }).then((resolved) => {
+      if (resolved.hasOwnProperty("data")) {
+    	  var d = JSON.parse(resolved.data);
+          if (d.hasOwnProperty("id")) {
+        	  mytodo.handlers.dialogs.success("The task was successfully created");
+          } else {
+        	  mytodo.handlers.dialogs.error("Failed to create the task");
+          }
+      }
+  });
   }
  }
+ // Setup our Vue components for Tasks
  mytodo.handlers.vue.tasks = new Vue({
   el: "#todo-app",
   delimiters: ['${', '}'],
@@ -24,12 +52,16 @@ waitForMyToDo(function() {
    todos: []
   },
   methods: {
+   /*
+    * Fetch the task records and load into the page
+    * 
+    * @function mytodo.handlers.vue.tasks.load
+    * @memberto mytodo
+    */
    load: function() {
 	   return mytodo.handlers.ajax.standardAjaxHandler(() => {
 		   return mytodo.apis.tasks.getAll();
 	   }).then((resolved) => {
-		   console.log('resolved');
-		   console.log(resolved);
 	       if (resolved.hasOwnProperty("data")) {
         	   var rd = JSON.parse(resolved.data);
                mytodo.handlers.vue.tasks.$data.todos = [];
@@ -45,28 +77,100 @@ waitForMyToDo(function() {
 	       }
 	   });
    },
+   /*
+    * Toggle the complete checkbox for a task
+    * 
+    * @function mytodo.handlers.vue.tasks.checkbox
+    * @memberto mytodo
+    * @param Object todo
+    */
    checkbox: function(todo) {
     todo.complete = !todo.complete
    },
+   /*
+    * Toggle the visibility of the options for this task
+    * 
+    * @function mytodo.handlers.vue.tasks.option
+    * @memberof mytodo
+    * @param Object todo
+    */
    option: function(todo) {
     todo.showOptions = !todo.showOptions;
    },
-   create: function() {
-    var d = mytodo.handlers.vue.tasks.$data.todos;
-    if (d.length > 0) {
-     var item = mytodo.factory.make("todo");
-     var elId = d[0].id;
-     for (var di in d) {
-      elId = (elId < d[di].id) ? d[di].id : elId;
-     }
-     item.id = ++elId;
-     item.label = "Task Item " + item.id;
-     d.push(item);
-    }
+   /*
+    * Vue Tasks component create new record method
+    * 
+    * @function mytodo.handlers.vue.tasks.create
+    * @memberof mytodo
+    * @param string lbl
+    * @return Promise
+    */
+   create: function(lbl) {
+	   return mytodo.handlers.ajax.standardAjaxHandler(() => {
+		   return mytodo.apis.tasks.insert((!mytodo.helper.types.isString(lbl) || !lbl) ? "Task Item " + this.generateId() : lbl);
+	   }).then((resolved) => {
+	       if (resolved.hasOwnProperty("data")) {
+        	   var rd = JSON.parse(resolved.data);
+        	   for(var i in rd) {
+        		   var item = rd[i];
+            	   if (item.hasOwnProperty("id")) {
+                	   var o = mytodo.factory.make("todo");
+                	   o.id = item.id;
+                	   o.label = item.label;
+                	   o.description = item.description;
+                	   o.complete = item.complete;
+                	   o.priority = item.priority;
+                	   mytodo.handlers.vue.tasks.$data.todos.push(o);        		   
+            	   }
+        	   }
+	       }
+	   });
+   },
+   /*
+    * Generate a number for a new task item
+    * based off the highest determined id from
+    * the list and increment it by 1
+    *
+    * @function generateId
+    * @memberof mytodo
+    * @return number|null
+    */
+   generateId: function(){
+	    var d = mytodo.handlers.vue.tasks.$data.todos;
+	    if (d.length > 0) {
+	     var elId = d[0].id;
+	     for (var di in d) {
+	      elId = (elId < d[di].id) ? d[di].id : elId;
+	     }
+	     return ++elId;
+	    }
+	    return null;
    }
   }
  });
+ // A self executing function that loads the tasks when ready
  (function(){
 	 mytodo.handlers.vue.tasks.load();
  })();
 });
+
+/*
+ * Ensures the main app.js script to finish loading and then
+ * initiates the tasks module
+ * 
+ * @function waitForMyToDo
+ * @param function cb
+ */
+function waitForMyToDo(cb) {
+ if (Object.prototype.toString.call(cb) === "[object Function]") {
+  var timeStart = Date.now();
+  while (true) {
+   if (typeof mytodo !== "undefined") {
+    cb();
+    break;
+   } else if (((Date.now() - timeStart) / 1000) < 10) {
+    break;
+   }
+  }
+ }
+}

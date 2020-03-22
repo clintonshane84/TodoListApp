@@ -1,15 +1,18 @@
 /*
- * @package app.js
- * @description My To Do frontend controller
+ * This is our main frontend controller
+ * 
+ * @name MyToDo
+ * @namespace mytodo
  * @author  Clinton Wright <clintonshanewright@gmail.com>
  */
+// Set dialog defaults for alertify
 if (alertify !== undefined || alertify !== null) {
  alertify.defaults.transition = "slide";
  alertify.defaults.theme.ok = "btn btn-primary";
  alertify.defaults.theme.cancel = "btn btn-danger";
  alertify.defaults.theme.input = "form-control";
 }
-
+// Initialize our main object
 var mytodo = {
  "helper": {
   "types": {
@@ -43,10 +46,18 @@ var mytodo = {
    showOptions: false
   }
  },
- "apis" : {},
+ "apis": {},
  "handlers": {
   "vue": {},
   "dialogs": {
+  "success": function(msg) {
+	    if (msg && mytodo.helper.types.isString(msg))
+	        alertify.success(msg);
+  },
+   "error": function(msg) {
+    if (msg && mytodo.helper.types.isString(msg))
+     alertify.error(msg);
+   },
    "alert": {
     "open": function(msg) {
      if (msg && mytodo.helper.types.isString(msg))
@@ -57,8 +68,13 @@ var mytodo = {
     }
    },
    "prompt": {
-    "open": function() {
-     alertify.prompt().set('message', msg).showModal();
+    "open": function(title, msg, ok, no) {
+     if (mytodo.helper.types.isString(title) && title && mytodo.helper.types.isString(msg) && msg) {
+    	console.log("prompt open");
+      alertify.prompt(title, msg, "", function(evt, value) {
+       ok(evt, value);
+      }, function(){no()});
+     }
     },
     "close": function() {
      alertify.prompt().close();
@@ -89,19 +105,22 @@ var mytodo = {
    }
   },
   "ajax": {
-   standardAjaxHandler : async function (cb) {
-     try {
-       response = await cb();
-       if (response != null) {
-         await mytodo.handlers.ajax.notifications.notify(response);
-         return response;
-       } else {
-         throw new Error("No response found");
-       }
-     } catch (err) {
-       console.log(err);
-       return err;
+   standardAjaxHandler: async function(cb) {
+    try {
+    	console.log("std ajax handler");
+    	console.log("cb:");
+    	console.log(cb);
+     response = await cb();
+     if (response !== null) {
+      await mytodo.handlers.ajax.notifications.notify(response);
+      return response;
+     } else {
+      throw new Error("No response found");
      }
+    } catch (err) {
+     console.log(err);
+     return err;
+    }
    },
    post: {
     json: function(json, url) {

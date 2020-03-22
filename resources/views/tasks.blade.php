@@ -17,7 +17,7 @@
         </div>
         <nav class="navbar navbar-default">
             <div class="navbar-header p-a-1">
-              <button type="button" class="btn btn-default" onclick="event.preventDefault(); mytodo.handlers.vue.tasks.create();"><span class="glyphicon glyphicon-plus-sign m-r-1"></span>New Task</button>
+              <button type="button" class="btn btn-default" onclick="event.preventDefault(); mytodo.handlers.dialogs.prompt.open('Label', 'Create New Task', function(evt, value){if(value){mytodo.handlers.vue.tasks.create(value)}},function(){mytodo.handlers.dialogs.error('Cancelled')})"><span class="glyphicon glyphicon-plus-sign m-r-1"></span>New Task</button>
             </div>
         </nav>
         <div class="todo-list-container">
