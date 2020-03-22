@@ -53,14 +53,13 @@ class TasksController extends Controller
                 $label = filter_var($params["label"], FILTER_SANITIZE_STRING);
                 if (empty($label) === false) {
                     $task = new Tasks();
-                    $result = DB::table("tasks")->select("*")
-                        ->where("id", "=", $task->id)
-                        ->get();
                     $task->label = $label;
                     if ($task->save() === true) {
+                        $task = Tasks::where("id", "=", $task->id)
+                        ->get()[0];
                         $respJson["status"] = "Success";
                         $respJson["message"] = "Created new record successfully with id: $task->id";
-                        $respJson["data"] = $result->toJson();
+                        $respJson["data"] = $task->toJson();
                     } else {
                         throw new \Exception("Failed to insert record");
                     }

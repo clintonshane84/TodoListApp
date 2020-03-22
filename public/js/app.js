@@ -43,6 +43,8 @@ var mytodo = {
    id: null,
    label: "",
    complete: false,
+   description: "",
+   priority: 0,
    showOptions: false
   }
  },
@@ -107,9 +109,6 @@ var mytodo = {
   "ajax": {
    standardAjaxHandler: async function(cb) {
     try {
-    	console.log("std ajax handler");
-    	console.log("cb:");
-    	console.log(cb);
      response = await cb();
      if (response !== null) {
       await mytodo.handlers.ajax.notifications.notify(response);
