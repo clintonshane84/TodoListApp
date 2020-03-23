@@ -32,10 +32,19 @@ var mytodo = {
   "make": function(name) {
    if (mytodo.helper.types.isString(name)) {
     if (mytodo.objs.hasOwnProperty(name)) {
-     return mytodo.helper.objs.cloneObj(mytodo.objs[name]);
+     return Object.assign({}, mytodo.objs[name]);
     }
    }
    return undefined;
+  },
+  "makeFormData" : function(params){
+	  var fd = new FormData();
+	  if (params) {
+		  for(var i in params) {
+			  fd.append(i, params[i]);
+		  }
+	  }
+	  return fd;
   }
  },
  "objs": {
@@ -45,6 +54,7 @@ var mytodo = {
    complete: false,
    description: "",
    priority: 0,
+   due_date: null,
    showOptions: false
   }
  },
@@ -122,26 +132,15 @@ var mytodo = {
     }
    },
    post: {
-    json: function(json, url) {
-     return new Promise((resolve, reject) => {
-      $.ajax({
-       type: "POST",
-       url: url,
-       processData: false,
-       contentType: "application/json",
-       cache: false,
-       data: json,
-       headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-       },
-       success: function(response, status, jqXHR) {
-        resolve(jqXHR);
-       }
-      }).fail(function(jqXHR, textStatus) {
-       reject(jqXHR);
-      });
-     });
-    },
+   /**
+    * Create a record using the POST HTTP method
+    * and the FormData object
+    * 
+    * @param FormData fd
+    * @param string url
+    * @param method = "POST"
+    * return Promise
+    */
     form: function(fd, url) {
      return new Promise((resolve, reject) => {
       $.ajax({
@@ -164,10 +163,36 @@ var mytodo = {
      });
     }
    },
-   get: function(url) {
+   put: {
+	   /**
+	    * Update a record using the POST method but
+	    * injecting the method as a HTTP Query parameter
+	    * Takes the FormData and sets the contentType to
+	    * multipart/form-data to update records
+	    * 
+	    * @function mytodo.handlers.ajax.put.form
+	    * @param FormData fd
+	    * @param string url
+	    * @return Promise
+	    */
+	   form: function(fd, url) {
+		   var connectorchar = (url.search(/\?/) !== -1) ? "&" : "?";
+		   return mytodo.handlers.ajax.post.form(fd, url + connectorchar + "_method=PUT");
+	   }
+   },
+   /**
+    * Send a GET HTTP request used for reading data
+    * 
+    * @function mytodo.handlers.ajax.get
+    * @param FormData fd
+    * @param string url
+    * @return Promise
+    */
+   get: function(url,method = "GET") {
     return new Promise((resolve, reject) => {
+    	method = (method.search(/^GET|DELETE$/i) !== -1) ? method.toUpperCase() : "GET";
      $.ajax({
-      type: "GET",
+      type: method,
       url: url,
       processData: false,
       contentType: false,
@@ -183,6 +208,17 @@ var mytodo = {
      });
     });
    },
+   /**
+    * Send a DELETE HTTP request used for deleting records
+    * from the server
+    * 
+    * @function mytodo.handlers.ajax.delete
+    * @param string url
+    * @return Promise
+    */
+   delete: function(url) {
+	    return this.get(url, "DELETE");
+	   },   
    "notifications": {
     notify: function(jqXHR) {
      return new Promise(function(resolve, reject) {

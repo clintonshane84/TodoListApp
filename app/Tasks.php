@@ -9,9 +9,10 @@ use App\Models\Extensions\TraitEnum;
 class Tasks extends Model
 {
     use TraitEnum;
+    public $timestamps = false;
     public static $fields = ["id", "label", "complete", "description", "due_date", "priority"];
     public static function getAll() {
-        return DB::table("tasks")->select(DB::raw("id, label, description, created_at, due_date, complete, priority"))
+        return DB::table("tasks")->select(DB::raw("id, label, description, due_date, complete, priority"))
         ->orderBy("complete", "desc")
         ->orderBy("label", "asc")
         ->get();
