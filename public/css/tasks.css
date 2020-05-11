@@ -1,5 +1,6 @@
 .todo-list-container {
 	min-width: 32rem;
+	margin: 15px;
 }
 .todo-list-container ul {
 	list-style-type: none;

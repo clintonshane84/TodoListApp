@@ -5,16 +5,31 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Tasks;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Mytodo\Helpers\ParamHelper;
 
-class TasksController extends Controller
+class TaskController extends Controller
 {
     private static $respJson = array(
         "status" => "Success",
         "message" => "No results",
         "data" => ""
     );
+    
+    private $id;
+    
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->id = Auth::id();
+    }
+    
     /**
      * Display a listing of the resource.
      *
@@ -24,7 +39,9 @@ class TasksController extends Controller
     {
         $respJson = self::$respJson;
         try {
-            $respJson["data"] = Tasks::getAll()->toJson();
+            $respJson["data"] = Tasks::select("*")
+            ->where("user_id", "=", $this->id)
+            ->toJson();
             $respJson["message"] = "Successfully fetched all task records";
         } catch(\Exception $e){
             $respJson["status"] = "Error";
@@ -47,13 +64,16 @@ class TasksController extends Controller
         $respJson["status"] = "Error";
         try {
             $params = $request->all();
-            $keys = ["label"];
+            $keys = ["label", "list_id"];
             $params = array_intersect_key($params, array_flip($keys));
             if (empty($params) === false) {
                 $label = filter_var($params["label"], FILTER_SANITIZE_STRING);
+                $label = filter_var($params["label"], FILTER_VALIDATE);
                 if (empty($label) === false) {
                     $task = new Tasks();
                     $task->label = $label;
+                    $task->list_id = $list_id;
+                    $task->user_id = $this->id;
                     if ($task->save() === true) {
                         $task = Tasks::where("id", "=", $task->id)
                         ->get()[0];
@@ -83,21 +103,21 @@ class TasksController extends Controller
     public function get(string $id)
     {
         $respJson = self::$respJson;
-        $respJson["message"] = "No record found";
-        $respJson["status"] = "Success";
+        $respJson["message"] = Constants::MSG_RECORD_NOT_FOUND;
+        $respJson["status"] = Constants::STATUS_SUCCESS;
         $id = filter_var($id, FILTER_VALIDATE_INT);
         
         if ($id !== false) {
             try {
-                $result = Tasks::where("id", "=", $id)
+                $result = Tasks::where(["id", "=", $id],["user_id", "=", $this->id])
                 ->limit(1)
                 ->get();
                 if ($result->isEmpty() === false) {
-                    $respJson["message"] = "Fetched record successfully with id: $id";
+                    $respJson["message"] = sprintf(Constants::MSG_STATUS, $id);
                     $respJson["data"] = json_encode($result[0]);
                 }
             } catch(\Exception $e){
-                $respJson["status"] = "Error";
+                $respJson["status"] = Constants::STATUS_ERROR;
                 $respJson["message"] = $e->getMessage();
                 $respJson["line"] = strval($e->getLine());
                 $respJson["trace"] = $e->getTraceAsString();
@@ -134,15 +154,15 @@ class TasksController extends Controller
                     $task = Tasks::where("id", "=", $id)
                     ->limit(1)
                     ->get()[0];
-                    $respJson["status"] = "Success";
-                    $respJson["message"] = "Updated record successfully with id: $id";
+                    $respJson["status"] = Constants::STATUS_SUCCESS;
+                    $respJson["message"] = sprintf(Constants::MSG_RECORD_UPDATE, $id);
                     $respJson["data"] = $task->toJson();
                 } else {
-                    throw new \Exception("Failed to insert record with id: $id");
+                    throw new \Exception(Constants::MSG_ERROR);
                 }
             }
         } catch(\Exception $e){
-            $respJson["status"] = "Error";
+            $respJson["status"] = Constants::STATUS_ERROR;
             $respJson["message"] = $e->getMessage();
             $respJson["line"] = strval($e->getLine());
             $respJson["trace"] = $e->getTraceAsString();
@@ -159,8 +179,8 @@ class TasksController extends Controller
     public function delete(string $id)
     {
         $respJson = self::$respJson;
-        $respJson["message"] = "No record deleted";
-        $respJson["status"] = "Error";
+        $respJson["message"] = Constants::MSG_NO_ACTION;
+        $respJson["status"] = Constants::STATUS_ERROR;
         try {
             // Validate our id
             $id = filter_var($id, FILTER_VALIDATE_INT);
@@ -168,11 +188,11 @@ class TasksController extends Controller
                 $result = DB::table("tasks")->where("id", "=", $id)
                 ->delete();
                 if ($result) {
-                    $respJson["status"] = "Success";
-                    $respJson["message"] = "Successfully Deleted record with id: $id";
+                    $respJson["status"] = Constants::STATUS_SUCCESS;
+                    $respJson["message"] = sprintf(Constants::MSG_RECORD_DELETE, $id);
                     $respJson["data"] = json_encode(["id" => $id]);
                 } else {
-                    throw new \Exception("Failed to delete record with id: $id");
+                    throw new \Exception(Constants::MSG_ERROR);
                 }
             }
         } catch(\Exception $e){

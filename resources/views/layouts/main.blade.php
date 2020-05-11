@@ -8,7 +8,9 @@
         @yield('styles')
     </head>
     <body>
+    	@include('navbar')
     	@yield('content')
+    	@include('footer')
     	@yield('scripts')
     </body>
 </html>

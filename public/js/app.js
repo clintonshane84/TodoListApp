@@ -50,12 +50,20 @@ var mytodo = {
  "objs": {
   todo: {
    id: null,
+   list_id: null,
+   user_id: null,
    label: "",
    complete: false,
    description: "",
    priority: 0,
    due_date: null,
    showOptions: false
+  },
+  list: {
+	id: null,
+	user_id: null,
+	label: "",
+	hide: false
   }
  },
  "apis": {},

@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Tasks;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
-class TasksController extends Controller
+class HomeController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -17,15 +15,14 @@ class TasksController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     /**
-     * Display a listing of the resource.
+     * Show the application dashboard.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Support\Renderable
      */
     public function index()
     {
-        $tasks = Tasks::getAll();
-        return view("tasks", $tasks);
+        return view('home');
     }
 }

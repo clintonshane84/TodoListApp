@@ -1,10 +1,14 @@
 
 ###> symfony/framework-bundle ###
+/.buildpath
+/.project
 /.env.local
 /.env.local.php
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
+/.settings/
 /public/bundles/
 /var/
 /vendor/
+/laradock/
 ###< symfony/framework-bundle ###

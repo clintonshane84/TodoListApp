@@ -8,9 +8,7 @@
 
 // Initiliaze the tasks module
 waitForMyToDo(function() {
-// Setup our Task API calls
- mytodo.apis.tasks = {
-  /**
+	  /**
 	 * Fetch the task records and load into the page
 	 * 
 	 * @function mytodo.handlers.vue.tasks.load
@@ -18,12 +16,19 @@ waitForMyToDo(function() {
 	 * @return Promise
 	 */
 	 getAll: function() {
-		 return mytodo.handlers.ajax.get("/api/task/all");
+		 return mytodo.handlers.ajax.get("/api/list/all");
 	 },
+  /**
+	 * Fetch the task records and load into the page
+	 * 
+	 * @function mytodo.handlers.vue.tasks.load
+	 * @memberto mytodo
+	 * @return Promise
+	 */
   insert: function(lbl) {
       var cForm = new FormData();
       cForm.append("label", lbl);
-  return mytodo.handlers.ajax.post.form(cForm, "/api/task/new");
+  return mytodo.handlers.ajax.post.form(cForm, "/api/list/new");
   },
   /**
 	 * Using the given todo object attempt to update the record
@@ -33,7 +38,7 @@ waitForMyToDo(function() {
 	 * @return Promise
 	 */
   update: function(fdata) {
-      return mytodo.handlers.ajax.put.form(fdata, "/api/task/update/" + fdata.get("id"));
+      return mytodo.handlers.ajax.put.form(fdata, "/api/list/update/" + fdata.get("id"));
   },
   /**
 	 * Using the given todo object attempt to delete the record
@@ -43,20 +48,20 @@ waitForMyToDo(function() {
 	 * @return Promise
 	 */
   delete: function(todo) {
-	  return mytodo.handlers.ajax.delete("/api/task/delete/" + todo.id);
+	  return mytodo.handlers.ajax.delete("/api/list/delete/" + todo.id);
   }
  }
  // Setup our Vue components for Tasks
  mytodo.handlers.vue.tasks = new Vue({
-  el: "#todo-app",
+  el: "#list-app",
   delimiters: ['${', '}'],
   data: {
-   todos: []
+   lists: []
   },
   methods: {
 	   load : function() {
 		   return mytodo.handlers.ajax.standardAjaxHandler(() => {
-			   return mytodo.apis.tasks.getAll();
+			   return mytodo.apis.getAll("task");
 		   }).then((resolved) => {
 		       if (resolved.hasOwnProperty("data")) {
         	   var rd = JSON.parse(resolved.data);
@@ -125,7 +130,7 @@ update: function(todo, f) {
     todo.showOptions = !todo.showOptions;
    },
    /**
-	 * Vue Tasks component create new record method
+	 * Vue Lists component create new record method
 	 * 
 	 * @function mytodo.handlers.vue.tasks.create
 	 * @memberof mytodo
@@ -154,7 +159,7 @@ update: function(todo, f) {
 	   });
    },
    /**
-	 * Vue Tasks component delete a record
+	 * Vue Lists component delete a record
 	 * 
 	 * @function mytodo.handlers.vue.tasks.delete
 	 * @memberof mytodo
@@ -184,7 +189,7 @@ update: function(todo, f) {
 	   });
    },
    /**
-	 * Generate a number for a new task item based off the highest determined id
+	 * Generate a number for a new list item based off the highest determined id
 	 * from the list and increment it by 1
 	 * 
 	 * @function generateId
@@ -192,7 +197,7 @@ update: function(todo, f) {
 	 * @return number|null
 	 */
    generateId: function(){
-	    var d = mytodo.handlers.vue.tasks.$data.todos;
+	    var d = mytodo.handlers.vue.tasks.$data.lists;
 	    if (d.length > 0) {
 	     var elId = d[0].id;
 	     for (var di in d) {
@@ -206,7 +211,7 @@ update: function(todo, f) {
  });
  // A self executing function that loads the tasks when ready
  (function(){
-	 mytodo.handlers.vue.tasks.load();
+	 mytodo.handlers.vue.lists.load();
  })();
 });
 
