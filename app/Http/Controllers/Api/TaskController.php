@@ -27,7 +27,6 @@ class TaskController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->id = Auth::id();
     }
     
     /**
@@ -40,11 +39,13 @@ class TaskController extends Controller
         $respJson = self::$respJson;
         try {
             $respJson["data"] = Tasks::select("*")
-            ->where("user_id", "=", $this->id)
+            ->where("user_id", "=", Auth::id())
+            ->get()
             ->toJson();
-            $respJson["message"] = "Successfully fetched all task records";
+            $respJson["message"] = Constants::MSG_STATUS;
+            $respJson["status"] = Constants::STATUS_SUCCESS;
         } catch(\Exception $e){
-            $respJson["status"] = "Error";
+            $respJson["status"] = Constants::STATUS_ERROR;
             $respJson["message"] = $e->getMessage();
             $respJson["line"] = strval($e->getLine());
             $respJson["trace"] = $e->getTraceAsString();
@@ -60,33 +61,33 @@ class TaskController extends Controller
     public function create(Request $request)
     {
         $respJson = self::$respJson;
-        $respJson["message"] = "No record inserted";
-        $respJson["status"] = "Error";
+        $respJson["message"] = Constants::MSG_NO_ACTION;
+        $respJson["status"] = Constants::STATUS_ERROR;
         try {
             $params = $request->all();
             $keys = ["label", "list_id"];
             $params = array_intersect_key($params, array_flip($keys));
             if (empty($params) === false) {
-                $label = filter_var($params["label"], FILTER_SANITIZE_STRING);
-                $label = filter_var($params["label"], FILTER_VALIDATE);
+                $label = (string) filter_var($params["label"], FILTER_SANITIZE_STRING);
+                $user_id = (int) filter_var($params["label"], FILTER_VALIDATE_INT);
                 if (empty($label) === false) {
                     $task = new Tasks();
                     $task->label = $label;
                     $task->list_id = $list_id;
-                    $task->user_id = $this->id;
+                    $task->user_id = Auth::id();
                     if ($task->save() === true) {
                         $task = Tasks::where("id", "=", $task->id)
                         ->get()[0];
-                        $respJson["status"] = "Success";
-                        $respJson["message"] = "Created new record successfully with id: $task->id";
+                        $respJson["status"] = Constants::STATUS_SUCCESS;
+                        $respJson["message"] = sprintf(Constants::MSG_RECORD_CREATE, $task->id);
                         $respJson["data"] = $task->toJson();
                     } else {
-                        throw new \Exception("Failed to insert record");
+                        throw new \Exception(Constants::MSG_ERROR);
                     }
                 }
             }
         } catch(\Exception $e){
-            $respJson["status"] = "Error";
+            $respJson["status"] = Constants::STATUS_ERROR;
             $respJson["message"] = $e->getMessage();
             $respJson["line"] = strval($e->getLine());
             $respJson["trace"] = $e->getTraceAsString();
@@ -137,8 +138,8 @@ class TaskController extends Controller
     {
         //
         $respJson = self::$respJson;
-        $respJson["message"] = "No record updated";
-        $respJson["status"] = "Error";
+        $respJson["message"] = Constants::MSG_NO_ACTION;
+        $respJson["status"] = Constants::STATUS_ERROR;
         try {
             $params = $request->all();
             $id = filter_var($id, FILTER_VALIDATE_INT);
@@ -147,7 +148,7 @@ class TaskController extends Controller
                 ->limit(1)
                 ->get();
                 if ($result->isEmpty() === true)
-                    throw new \Exception("Could not find the task record for id: $id");
+                    throw new \Exception(sprintf(Constants::MSG_RECORD_NOT_FOUND, $id));
                 $task = $result[0];
                 $task->wrapArray($params);
                 if ($task->update() === true) {

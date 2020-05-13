@@ -46,6 +46,9 @@ return [
 
         'ses' => [
             'transport' => 'ses',
+            'key' => env('AWS_SES_KEY'),
+            'secret' => env('AWS_SES_SECRET'),
+            'region' => env('AWS_SES_REGION')
         ],
 
         'mailgun' => [

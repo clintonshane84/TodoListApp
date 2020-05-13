@@ -302,3 +302,22 @@ var mytodo = {
   }
  }
 };
+/*
+ * Ensures the main app.js script to finish loading and then initiates the tasks
+ * module
+ * 
+ * @function waitForMyToDo @param function cb
+ */
+function waitForMyToDo(cb) {
+ if (Object.prototype.toString.call(cb) === "[object Function]") {
+  var timeStart = Date.now();
+  while (true) {
+   if (typeof mytodo !== "undefined") {
+    cb();
+    break;
+   } else if (((Date.now() - timeStart) / 1000) < 10) {
+    break;
+   }
+  }
+ }
+}

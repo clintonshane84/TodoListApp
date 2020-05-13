@@ -52,7 +52,7 @@ waitForMyToDo(function() {
   }
  }
  // Setup our Vue components for Tasks
- mytodo.handlers.vue.tasks = new Vue({
+ mytodo.handlers.vue.lists = new Vue({
   el: "#list-app",
   delimiters: ['${', '}'],
   data: {
@@ -61,7 +61,7 @@ waitForMyToDo(function() {
   methods: {
 	   load : function() {
 		   return mytodo.handlers.ajax.standardAjaxHandler(() => {
-			   return mytodo.apis.getAll("task");
+			   return mytodo.apis.lists.getAll();
 		   }).then((resolved) => {
 		       if (resolved.hasOwnProperty("data")) {
         	   var rd = JSON.parse(resolved.data);
@@ -214,23 +214,3 @@ update: function(todo, f) {
 	 mytodo.handlers.vue.lists.load();
  })();
 });
-
-/*
- * Ensures the main app.js script to finish loading and then initiates the tasks
- * module
- * 
- * @function waitForMyToDo @param function cb
- */
-function waitForMyToDo(cb) {
- if (Object.prototype.toString.call(cb) === "[object Function]") {
-  var timeStart = Date.now();
-  while (true) {
-   if (typeof mytodo !== "undefined") {
-    cb();
-    break;
-   } else if (((Date.now() - timeStart) / 1000) < 10) {
-    break;
-   }
-  }
- }
-}

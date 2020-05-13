@@ -15,49 +15,55 @@ use App\Http\Controllers\Api\ListController;
  * |
  */
 $contr = new TaskController();
-// Get a single task by id
-Route::get("task/{id}", function ($id) {
-    return $contr->get($id);
-});
-// Get a all tasks belonging to the session user
-Route::get("/task/all", function () use ($contr) {
-    return $contr->index();
-});
-// Create a new task
-Route::post("task/new", function (Request $request) use ($contr) {
-    return $contr->create($request);
-});
+$lcontr = new ListController();
+Route::middleware(["auth:web"])->group(function () use ($contr, $lcontr) {
+    // <== TASK OBJECT ==>
 
-// Update a task
-Route::put("task/update/{id}", function ($id, Request $request) use ($contr) {
-    return $contr->update($id, $request);
-});
-// Delete a task
-Route::delete("task/delete/{id}", function ($id) use ($contr) {
-    return $contr->delete($id);
-});
-// Reuse variable with other controller
-$contr = new ListController();
+    // Get a all tasks belonging to the session user
+    Route::get("task/all", function () use ($contr) {
+        return $contr->index();
+    });
+    // Create a new task
+    Route::post("task/new", function (Request $request) use ($contr) {
+        return $contr->create($request);
+    });
 
-// Get a single by id
-Route::get("list/{id}", function ($id) {
-    return $contr->get($id);
-});
+    // Update a task
+    Route::put("task/update/{id}", function ($id, Request $request) use ($contr) {
+        return $contr->update($id, $request);
+    });
+    // Delete a task
+    Route::delete("task/delete/{id}", function ($id) use ($contr) {
+        return $contr->delete($id);
+    });
+
+    // Get a single task by id
+    Route::get("task/{id}", function ($id) use ($contr) {
+        return $contr->get($id);
+    });
+
+    // <== LIST OBJECT ==>
+
+    // Get a all lists belonging to the session user
+    Route::get("/list/all", function () use ($lcontr) {
+        return $lcontr->index();
+    });
+
+    // Get a single by id
+    Route::get("list/{id}", function ($id) use ($lcontr) {
+        return $lcontr->get($id);
+    });
     // Create a new list
-Route::post("list/new", function (Request $request) use ($contr) {
-    return $contr->create($request);
-});
+    Route::post("list/new", function (Request $request) use ($lcontr) {
+        return $lcontr->create($request);
+    });
 
     // Update a list
-Route::put("list/update/{id}", function ($id, Request $request) use ($contr) {
-    return $contr->update($id, $request);
-});
-// Delete a task
-Route::delete("list/delete/{id}", function ($id) use ($contr) {
-    return $contr->delete($id);
-});
-
-// Get a all lists belonging to the session user
-Route::get("/list/all", function () use ($contr) {
-    return $contr->index();
+    Route::put("list/update/{id}", function ($id, Request $request) use ($lcontr) {
+        return $lcontr->update($id, $request);
+    });
+    // Delete a list
+    Route::delete("list/delete/{id}", function ($id) use ($lcontr) {
+        return $lcontr->delete($id);
+    });
 });
