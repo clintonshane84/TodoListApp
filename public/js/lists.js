@@ -1,20 +1,21 @@
 /*
  * Seperated the parts of my mytodo object to be loaded like modules
  * 
- * @name MyToDo
+ * @name list.js
  * @namespace mytodo
  * @author Clinton Wright <clintonshanewright@gmail.com>
  */
 
 // Initiliaze the tasks module
 waitForMyToDo(function() {
+	mytodo.apis.lists = {
 	  /**
-	 * Fetch the task records and load into the page
-	 * 
-	 * @function mytodo.handlers.vue.tasks.load
-	 * @memberto mytodo
-	 * @return Promise
-	 */
+		 * Fetch the task records and load into the page
+		 * 
+		 * @function mytodo.handlers.vue.tasks.load
+		 * @memberto mytodo
+		 * @return Promise
+		 */
 	 getAll: function() {
 		 return mytodo.handlers.ajax.get("/api/list/all");
 	 },
@@ -50,15 +51,11 @@ waitForMyToDo(function() {
   delete: function(todo) {
 	  return mytodo.handlers.ajax.delete("/api/list/delete/" + todo.id);
   }
- }
- // Setup our Vue components for Tasks
- mytodo.handlers.vue.lists = new Vue({
-  el: "#list-app",
-  delimiters: ['${', '}'],
-  data: {
-   lists: []
-  },
-  methods: {
+ };
+ // Setup our main app
+	Vue.component("todo-lists", {
+		props : ['lists'],
+	  methods: {
 	   load : function() {
 		   return mytodo.handlers.ajax.standardAjaxHandler(() => {
 			   return mytodo.apis.lists.getAll();
@@ -207,10 +204,7 @@ update: function(todo, f) {
 	    }
 	    return null;
    }
-  }
+  },
+  template: '<div class="flex-lists"><div v-for="item in lists" :key="name" class="flex-list-child"><div class="row"><span>${item.name}</span></div><div class="todo-list-container"><todo-tasks></todo-tasks></div></div></div>'
  });
- // A self executing function that loads the tasks when ready
- (function(){
-	 mytodo.handlers.vue.lists.load();
- })();
 });

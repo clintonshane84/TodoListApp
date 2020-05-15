@@ -1,4 +1,5 @@
-
+*.lock
+*.lock.json
 ###> symfony/framework-bundle ###
 /.buildpath
 /.project

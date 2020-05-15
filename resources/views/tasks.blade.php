@@ -17,21 +17,14 @@
         </div>
     </nav>
     <div id="list-app" class="flex-lists">
-    	<div v-for="item in lists" :key="name" class="flex-list-child">
-    		<div class="row">
-    			<span>${item.name}</span>
-    		</div>
-            <div class="todo-list-container">
-    			<ul id="todo-app">
-					<vtasks></vtasks>
-    			</ul>
-            </div>
-    	</div>
+		<todo-lists v-for="item in items" :key="item.id"></todo-lists>
     </div>
 </div>
 @endsection
 @section('scripts')
 <script src="{{ asset('vendor/alertify/alertify.min.js') }}" defer></script>
-<script src="{{ asset('js/app.js') }}" defer></script>
-<script src="{{ asset('js/tasks.js') }}" defer></script>
+<script src="{{ asset('js/app.js') }}" defer="true"></script>
+<script src="{{ asset('js/tasks.js') }}" defer="true"></script>
+<script src="{{ asset('js/lists.js') }}" defer="true"></script>
+<script src="{{ asset('js/final.js') }}" defer="true"></script>
 @endsection
