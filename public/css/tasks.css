@@ -1,14 +1,14 @@
-.todo-list-container {
+.t-list-container {
 	min-width: 32rem;
 	margin: 15px;
 }
-.todo-list-container ul {
+.t-list-container ul {
 	list-style-type: none;
 	border: 1px solid #008080;
 	padding: 1rem;
 	border-radius: 0.5rem;
 }
-.todo-list-container li {
+.t-list-container li {
 	display: flex;
 	justify-content: flex-start;
 	text-align: left;
@@ -18,10 +18,10 @@
 	padding: 2rem;
 }
 
-.todo-list-container li input {
+.t-list-container li input {
 	border: none;
 }
 
-.todo-list-container li input[type='hidden'] {
+.t-list-container li input[type='hidden'] {
 	background-color: #000;
 }

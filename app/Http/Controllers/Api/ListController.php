@@ -38,6 +38,7 @@ class ListController extends Controller
         try {
             $respJson["data"] = Lists::select("*")
             ->where("user_id", "=", Auth::user()->id)
+            ->get()
             ->toJson();
             $respJson["message"] = "Successfully fetched all list records";
         } catch(\Exception $e){

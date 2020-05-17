@@ -17,11 +17,14 @@
         </div>
     </nav>
     <div id="list-app" class="flex-lists">
-		<todo-lists v-for="item in items" :key="item.id"></todo-lists>
+		<todo-lists v-bind:items="lists" v-bind:csrf="csrf" v-bind:tasks="tasks"></todo-lists>
     </div>
 </div>
 @endsection
 @section('scripts')
+<script>
+    window.Laravel = <?php echo json_encode(['csrfToken' => csrf_token()]); ?>
+</script>
 <script src="{{ asset('vendor/alertify/alertify.min.js') }}" defer></script>
 <script src="{{ asset('js/app.js') }}" defer="true"></script>
 <script src="{{ asset('js/tasks.js') }}" defer="true"></script>
