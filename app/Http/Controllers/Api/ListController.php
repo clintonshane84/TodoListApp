@@ -65,8 +65,8 @@ class ListController extends Controller
             $keys = ["name"];
             $params = array_intersect_key($params, array_flip($keys));
             if (empty($params) === false) {
-                $name = filter_var($params["name"], FILTER_SANITIZE_STRING);
-                if (empty($label) === false) {
+                $name = $params["name"];
+                if (empty($name) === false) {
                     $l = new Lists();
                     $l->name = $name;
                     $l->user_id = Auth::user()->id;
@@ -180,8 +180,8 @@ class ListController extends Controller
         try {
             // Validate our id
             $id = filter_var($id, FILTER_VALIDATE_INT);
-            if (empty($id) === false) {
-                $result = DB::table("tasks")->where("id", "=", $id)
+            if (empty($id) === false && $id == 0) {
+                $result = DB::table("lists")->where("id", "=", $id)
                 ->delete();
                 if ($result) {
                     $respJson["status"] = Constants::STATUS_SUCCESS;

@@ -112,59 +112,61 @@ mytodo.objs = {
 mytodo.handlers = {
     "vue": {},
     "dialogs": {
-        "success": function (msg) {
-            if (msg && mytodo.helper.types.isString(msg))
-                alertify.success(msg);
-        },
-        "error": function (msg) {
-            if (msg && mytodo.helper.types.isString(msg))
-                alertify.error(msg);
-        },
-        "alert": {
-            "open": function (msg) {
+        "alertify" : {
+            "success": function (msg) {
                 if (msg && mytodo.helper.types.isString(msg))
-                    alertify.alert().set('message', msg).showModal();
+                    alertify.success(msg);
             },
-            "close": function () {
-                alertify.alert().close();
-            }
-        },
-        "prompt": {
-            "open": function (title, msg, ok, no) {
-                if (mytodo.helper.types.isString(title) && title && mytodo.helper.types.isString(msg) && msg) {
-                    console.log("prompt open");
-                    alertify.prompt(title, msg, "", function (evt, value) {
-                        ok(evt, value);
-                    }, function () {
-                        no()
-                    });
+            "error": function (msg) {
+                if (msg && mytodo.helper.types.isString(msg))
+                    alertify.error(msg);
+            },
+            "alert": {
+                "open": function (msg) {
+                    if (msg && mytodo.helper.types.isString(msg))
+                        alertify.alert().set('message', msg).showModal();
+                },
+                "close": function () {
+                    alertify.alert().close();
                 }
             },
-            "close": function () {
-                alertify.prompt().close();
-            }
-        },
-        "notify": {
-            "open": function (msg, status) {
-                alertify.notify(msg, 'success', 5, function () {});
-            },
-            "close": function () {
-                alertify.notify().close();
-            }
-        },
-        "confirm": {
-            "open": function (title, msg) {
-                if (msg && mytodo.helper.types.isString(msg) &&
-                    mytodo.helper.types.isString(title)) {
-                    alertify.confirm(title, msg, function () {
-                        alertify.success('Ok')
-                    }, function () {
-                        alertify.error('Cancel')
-                    });
+            "prompt": {
+                "open": function (title, msg, ok, no) {
+                    if (mytodo.helper.types.isString(title) && title && mytodo.helper.types.isString(msg) && msg) {
+                        console.log("prompt open");
+                        alertify.prompt(title, msg, "", function (evt, value) {
+                            ok(evt, value);
+                        }, function () {
+                            no()
+                        });
+                    }
+                },
+                "close": function () {
+                    alertify.prompt().close();
                 }
             },
-            "close": function () {
-                alertify.confirm().close();
+            "notify": {
+                "open": function (msg, status) {
+                    alertify.notify(msg, 'success', 5, function () {});
+                },
+                "close": function () {
+                    alertify.notify().close();
+                }
+            },
+            "confirm": {
+                "open": function (title, msg) {
+                    if (msg && mytodo.helper.types.isString(msg) &&
+                        mytodo.helper.types.isString(title)) {
+                        alertify.confirm(title, msg, function () {
+                            alertify.success('Ok')
+                        }, function () {
+                            alertify.error('Cancel')
+                        });
+                    }
+                },
+                "close": function () {
+                    alertify.confirm().close();
+                }
             }
         }
     },
@@ -290,7 +292,7 @@ mytodo.handlers = {
                             msg = jqXHR.message;
                         }
 
-                        mytodo.handlers.dialogs.notify.open(msg, alertState);
+                        mytodo.handlers.dialogs.alertify.notify.open(msg, alertState);
                         resolve(jqXHR);
                     } catch (err) {
                         reject(err);

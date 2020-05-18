@@ -10,18 +10,70 @@
 	<link href="{{ asset('css/tasks.css') }}" rel="stylesheet">
 @endsection
 @section('content')
-<div class="content">
-    <nav class="navbar navbar-default">
-        <div class="navbar-header p-a-1">
-          <button type="button" class="btn btn-default" onclick="event.preventDefault(); mytodo.handlers.dialogs.prompt.open('Label', 'Create New Task', function(evt, value){if(value){mytodo.handlers.vue.tasks.create(value)}},function(){mytodo.handlers.dialogs.error('Cancelled')})"><span class="glyphicon glyphicon-plus-sign m-r-1"></span>New Task</button>
-        </div>
-    </nav>
-    <div id="list-app" class="flex-lists">
-		<todo-lists v-bind:items="lists" v-bind:csrf="csrf" v-bind:tasks="tasks"></todo-lists>
-    </div>
-</div>
 @endsection
 @section('scripts')
+<div class="content" id="list-app">
+    <nav class="navbar navbar-default">
+        <div class="navbar-header p-a-1">
+          <button type="button" class="btn btn-default" onclick="event.preventDefault(); mytodo.handlers.dialogs.alertify.prompt.open('Label', 'Create New List', function(evt, value){if(value){mytodo.handlers.vue.createList(value)}},function(){mytodo.handlers.dialogs.alertify.error('Cancelled')})"><span class="glyphicon glyphicon-plus-sign m-r-1"></span>New List</button>
+        </div>
+    </nav>
+    <div class="flex-lists">
+		<todo-lists :items="lists" :csrf="csrf" :tasks="tasks" :dialog="dialogm" :app="app"></todo-lists>
+    </div>
+</div>
+<div id="modal-edit-task" class="modal">
+
+  <!-- [2] -->
+  <div tabindex="-1" class="modal-win">
+
+    <!-- [3] -->
+    <div role="dialog" aria-modal="true" aria-labelledby="modal-edit-task-title" >
+
+      <header>
+        <!-- [4] -->
+		<button class="far fa-window-close pull-right modal-close-btn" type="button" onclick="mytodo.handlers.dialogs.default.close()" aria-label="Close modal">
+		</button>
+        <h2 id="modal-edit-task-title">
+          Edit Task
+        </h2>
+      </header>
+
+      <div id="modal-edit-task-content" class="modal-content">
+        <form id="form-update-task" method="post" enctype="multipart/form-data" class="col-md-12">
+    	    <input type="hidden" name="_token" value="@csrf">
+    	    <input id="edit-task-input-hidden-id" type="hidden" name="id">
+    	    <input id="edit-task-input-hidden-list-id" type="hidden" name="list_id">
+			<div class="row p-a-1">
+				<div class="col-md-6">
+					<div class="row p-t-2">
+        				<label>Label</label>
+        				<input id="edit-task-input-label" :value="item.label" class="p-l-1"></input>
+					</div>
+					<div class="row p-t-2">
+        					<label :for="\'task-due_date-\' + item.id">Due Date</label>
+        					<input :id="\'task-due_date-\' + item.id" type="date" class="form-control" :value="item.due_date">
+					</div>
+					<div class="row p-t-2">
+    						<label :for="\'task-priority-\' + item.id">Priority</label>
+    						<input :id="\'task-priority-\' + item.id" class="form-control" type="range" min="0" max="9" step="1" :value="item.priority">
+					</div>
+				</div>
+				<div class="col-md-6">
+					<label for="">Description</label>
+					<textarea :id="\'task-description-\' + item.id" rows="8" cols="30" :value="item.description"></textarea>
+				</div>
+				<div class="row pull-right p-t-2">
+					<div class="col-md-12">
+						<button class="btn btn-danger" type="button" onclick="mytodo.handlers.dialogs.default.close()">Cancel</button>
+						<button class="btn btn-success">Save Changes</button>
+					</div>
+				</div>
+			</form>
+      </div>
+    </div>
+  </div>
+</div>
 <script>
     window.Laravel = <?php echo json_encode(['csrfToken' => csrf_token()]); ?>
 </script>
@@ -29,5 +81,6 @@
 <script src="{{ asset('js/app.js') }}" defer="true"></script>
 <script src="{{ asset('js/tasks.js') }}" defer="true"></script>
 <script src="{{ asset('js/lists.js') }}" defer="true"></script>
+<script src="{{ asset('js/dialog.js') }}" defer="true"></script>
 <script src="{{ asset('js/final.js') }}" defer="true"></script>
 @endsection

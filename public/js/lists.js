@@ -26,9 +26,9 @@ mytodo.waitForMe(() => {
          * @memberto mytodo
          * @return Promise
          */
-        insert: function (lbl) {
+        insert: function (name) {
             var cForm = new FormData();
-            cForm.append("label", lbl);
+            cForm.append("name", name);
             return mytodo.handlers.ajax.post.form(cForm, "/api/list/new");
         },
         /**
@@ -48,13 +48,13 @@ mytodo.waitForMe(() => {
          * @memberto mytodo
          * @return Promise
          */
-        delete: function (todo) {
-            return mytodo.handlers.ajax.delete("/api/list/delete/" + todo.id);
+        delete: function (id) {
+            return mytodo.handlers.ajax.delete("/api/list/delete/" + id);
         }
     };
     // Setup our main app
     Vue.component("todo-lists", {
-        props: ["items", "csrf", "tasks"],
+        props: ["items", "csrf", "tasks", "dialog", "app"],
         delimiters: ["${", "}"],
         methods: {
             /**
@@ -117,7 +117,7 @@ mytodo.waitForMe(() => {
              */
             remove: function (item) {
                 return mytodo.handlers.ajax.standardAjaxHandler(() => {
-                    return mytodo.apis.lists.delete(item);
+                    return mytodo.apis.lists.delete(item.id);
                 }).then((resolved) => {
                     if (resolved.hasOwnProperty("data")) {
                         var rd = JSON.parse(resolved.data);
@@ -157,6 +157,6 @@ mytodo.waitForMe(() => {
                 return null;
             }
         },
-        template: '<div class="flex-lists"><div v-for="item in items" :key="item.name" class="flex-list-child"><div class="row"><span>${item.name}</span></div><todo-tasks :items="tasks" :list_id="item.id" :csrf="csrf"></todo-tasks></div></div>'
+        template: '<div class="flex-lists"><div v-for="item in items" :key="item.name" class="flex-list-child"><div class="t-list-header"><input :id="\'list-name-\' + item.id" type="text" :value="item.name" v-on:change="update(item, \'name\')"></input></div class="todo-task-toolbar"><div><button type="button" title="Create New Task" class="btn fas fa-plus-circle" v-on:click="app.handlers.vue.createTask(item)"></button><button type="button" title="Delete List" class="btn fas fa-trash" v-on:click="remove(item)"></button></div><div></div><todo-tasks :items="tasks" :list_id="item.id" :csrf="csrf" :dialog="dialog" :app="app"></todo-tasks></div></div>'
     });
 }, mytodo, mytodo.allprops);

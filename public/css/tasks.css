@@ -15,7 +15,10 @@
 	flex-direction: row;
 	text-align: left;
 	flex-wrap: wrap;
-	padding: 2rem;
+	padding: 1rem;
+    background-color: lightblue;
+    border-radius: 0.25rem;
+    margin-top: 1.25rem;
 }
 
 .t-list-container li input {
@@ -24,4 +27,10 @@
 
 .t-list-container li input[type='hidden'] {
 	background-color: #000;
+}
+
+.t-list-header {
+    border: 1px solid #008080;
+    background-color: #008080;
+    color: #fff;
 }

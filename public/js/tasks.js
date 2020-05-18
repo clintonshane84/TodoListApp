@@ -20,9 +20,10 @@ mytodo.waitForMe(function () {
         getAll: function () {
             return mytodo.handlers.ajax.get("/api/task/all");
         },
-        insert: function (lbl) {
+        insert: function (lbl, list_id) {
             var cForm = new FormData();
             cForm.append("label", lbl);
+            cForm.append("list_id", list_id);
             return mytodo.handlers.ajax.post.form(cForm, "/api/task/new");
         },
         /**
@@ -48,7 +49,7 @@ mytodo.waitForMe(function () {
     }
     // Setup our Vue components for Tasks
     Vue.component("todo-tasks", {
-        props: ["items", "list_id", "csrf"],
+        props: ["items", "list_id", "csrf", "dialog", "app"],
         delimiters: ["${", "}"],
         methods: {
             /**
@@ -56,8 +57,7 @@ mytodo.waitForMe(function () {
              * 
              * @function mytodo.handlers.vue.tasks.checkbox
              * @memberto mytodo
-             * @param Object
-             *            todo
+             * @param Object item
              */
             checkbox: function (item) {
                 item.complete = !item.complete;
@@ -74,10 +74,25 @@ mytodo.waitForMe(function () {
              * @param Object
              * @return Promise
              */
+            edit: function (item) {
+                if (item) {
+                    var el = document.getElementById("modal-edit-task");
+                    if (el) {
+                        
+                    }
+                }
+            },
+            /**
+             * Vue Tasks component update a record
+             * 
+             * @function mytodo.handlers.vue.tasks.update
+             * @memberof mytodo
+             * @param Object
+             * @return Promise
+             */
             update: function (item, f) {
-                if (f && mytodo.helper.types.isString(f)) {
+                if (item) {
                     var el = document.getElementById("task-" + f + "-" + item.id);
-                    console.log(el);
                     if (el) {
                         item[f] = el.value;
                         var data = {
@@ -89,28 +104,14 @@ mytodo.waitForMe(function () {
                 }
             },
             /**
-             * Toggle the visibility of the options for this task
+             * Vue Tasks component create a record
              * 
-             * @function mytodo.handlers.vue.tasks.option
-             * @memberof mytodo
-             * @param Object
-             *            todo
-             */
-            option: function (item) {
-                item.showOptions = !item.showOptions;
-            },
-            /**
-             * Vue Tasks component create new record method
-             * 
-             * @function mytodo.handlers.vue.tasks.create
-             * @memberof mytodo
-             * @param string
-             *            lbl
+             * @param Object item
              * @return Promise
              */
-            create: function (lbl) {
+            create: function (item) {
                 return mytodo.handlers.ajax.standardAjaxHandler(() => {
-                    return mytodo.apis.tasks.insert((!mytodo.helper.types.isString(lbl) || !lbl) ? "Task Item " + this.generateId() : lbl)
+                    return mytodo.apis.tasks.insert(item.label, list_id);
                 }).then((resolved) => {
                     if (resolved.hasOwnProperty("data")) {
                         var rd = JSON.parse(resolved.data);
@@ -139,7 +140,9 @@ mytodo.waitForMe(function () {
              */
             remove: function (item) {
                 return mytodo.handlers.ajax.standardAjaxHandler(() => {
-                    return mytodo.apis.tasks.delete(item);
+                    console.log("123");
+                    console.log(item);
+                    return mytodo.apis.tasks.delete(item.id);
                 }).then((resolved) => {
                     if (resolved.hasOwnProperty("data")) {
                         var rd = JSON.parse(resolved.data);
@@ -179,6 +182,6 @@ mytodo.waitForMe(function () {
                 return null;
             }
         },
-        template: '<div class="t-list-container"><li v-for="item in items" :key="item.label" v-if="item.list_id == list_id"><form v-bind:id="\'form-\' + item.id" method="post" enctype="multipart/form-data" class="col-md-12"> <input type="hidden" name="_token" value="${csrf}"> <div class="row"><div class="col-sm-10 col-md-10 col-xs-10"><input v-bind:id="\'task-complete-\' + item.id" type="checkbox" v-on:change="checkbox(t)" v-bind:checked="item.complete"></input><input v-bind:id="\'task-label-\'+ item.id" v-bind:value="item.label" v-on:change="update(t, \'label\')"></div><div class="col-sm-2 col-md-2 col-xs-2"><div class="btn-group m-r-2"><button type="button" class="btn btn-default" v-on:click="option(t)"><span class="caret"></span></button></div><div class="btn-group"><button type="button" class="btn btn-danger" v-bind:id="\'task-delete-\' + item.id" v-on:click="remove(t)"><span class="glyphicon glyphicon-remove"></span></button></div></div></div><div v-bind:name="\'task-options-\' + item.id" class="col-sm-12 col-md-12 col-xs-12" v-if="item.showOptions"><div class="row"><div class="col-md-6"><label v-bind:for="\'task-description-\' + item.id">Description</label><textarea v-bind:id="\'task-description-\' + item.id" rows="8" cols="50" v-on:change="update(t, \'description\')" v-bind:value="item.description"></textarea></div><div class="col-md-6"><div class="form-group"><label v-bind:for="\'task-due_date-\' + item.id">Due Date</label><input v-bind:id="\'task-due_date-\' + item.id" type="date" class="form-control" v-bind:value="item.due_date" v-on:change="update(t, \'due_date\')"></div><div class="form-group"><label v-bind:for="\'task-priority-\' + item.id">Priority</label><input v-bind:id="\'task-priority-\' + item.id" class="form-control" type="range" min="0" max="9" step="1" v-bind:value="item.priority" v-on:input="update(t, \'priority\')"></div></div></div></div></form></li></div>'
+        template: '<div class="t-list-container"><li v-for="item in items" :key="item.label" v-if="item.list_id == list_id"><form v-bind:id="\'form-\' + item.id" method="post" enctype="multipart/form-data" class="col-md-12"><input type="hidden" name="_token" :value="csrf"><div class="row"><div class="col-sm-8 col-md-8 col-xs-8"><input :id="\'task-label-\'+ item.id" :value="item.label" v-on:change="update(item, \'label\')"></div><div class="col-sm-4 col-md-4 col-xs-4 pull-right"><div class="form-group"> <label :for="\'task-complete-\' + item.id">Completed</label><input :id="\'task-complete-\' + item.id" type="checkbox" class="btn btn-sm btn-primary" v-on:click="checkbox(item)" :checked="item.complete"></input></div></div></div><div class="row pull-right m-t-1"><div class="btn-group p-r-1"><button type="button" class="btn btn-sm btn-primary" :id="\'task-edit-\' + item.id" v-on:click="edit(item)"><span class="fas fa-edit"></span></button></div><div class="btn-group"><button type="button" class="btn btn-sm btn-danger" :id="\'task-delete-\' + item.id" v-on:click="remove(item)"><span class="fas fa-trash"></span></button></div></div></form></li></div>'
     });
 }, mytodo, mytodo.allprops);

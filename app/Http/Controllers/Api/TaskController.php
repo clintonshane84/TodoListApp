@@ -69,6 +69,7 @@ class TaskController extends Controller
             $params = array_intersect_key($params, array_flip($keys));
             if (empty($params) === false) {
                 $label = (string) filter_var($params["label"], FILTER_SANITIZE_STRING);
+                $list_id = (int) filter_var($params["list_id"], FILTER_VALIDATE_INT);
                 $user_id = (int) filter_var($params["label"], FILTER_VALIDATE_INT);
                 if (empty($label) === false) {
                     $task = new Tasks();
@@ -185,7 +186,7 @@ class TaskController extends Controller
         try {
             // Validate our id
             $id = filter_var($id, FILTER_VALIDATE_INT);
-            if (empty($id) === false) {
+            if (empty($id) === false && $id == 0) {
                 $result = DB::table("tasks")->where("id", "=", $id)
                 ->delete();
                 if ($result) {
