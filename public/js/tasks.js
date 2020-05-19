@@ -43,8 +43,8 @@ mytodo.waitForMe(function () {
          * @memberto mytodo
          * @return Promise
          */
-        delete: function (item) {
-            return mytodo.handlers.ajax.delete("/api/task/delete/" + item.id);
+        delete: function (id) {
+            return mytodo.handlers.ajax.delete("/api/task/delete/" + id);
         }
     }
     // Setup our Vue components for Tasks
@@ -69,17 +69,13 @@ mytodo.waitForMe(function () {
             /**
              * Vue Tasks component update a record
              * 
-             * @function mytodo.handlers.vue.tasks.update
-             * @memberof mytodo
+             * @function mytodo.handlers.vue.tasks.edit
              * @param Object
-             * @return Promise
              */
             edit: function (item) {
                 if (item) {
-                    var el = document.getElementById("modal-edit-task");
-                    if (el) {
-                        
-                    }
+                    mytodo.handlers.dialogs.default.loadRecord(item);
+                    mytodo.handlers.dialogs.default.open();
                 }
             },
             /**
@@ -140,8 +136,8 @@ mytodo.waitForMe(function () {
              */
             remove: function (item) {
                 return mytodo.handlers.ajax.standardAjaxHandler(() => {
-                    console.log("123");
-                    console.log(item);
+                    console.log("dump id");
+                    console.log(item.id);
                     return mytodo.apis.tasks.delete(item.id);
                 }).then((resolved) => {
                     if (resolved.hasOwnProperty("data")) {

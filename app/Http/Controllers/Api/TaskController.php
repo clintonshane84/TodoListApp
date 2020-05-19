@@ -186,7 +186,7 @@ class TaskController extends Controller
         try {
             // Validate our id
             $id = filter_var($id, FILTER_VALIDATE_INT);
-            if (empty($id) === false && $id == 0) {
+            if (empty($id) === false || $id === 0) {
                 $result = DB::table("tasks")->where("id", "=", $id)
                 ->delete();
                 if ($result) {
