@@ -60,6 +60,11 @@ mytodo.helper = {
             if (Object.prototype.toString.call(val) === "[object Array]")
                 return true;
             return false;
+        },
+        "isObject": function (val) {
+            if (Object.prototype.toString.call(val) === "[object Object]")
+                return true;
+            return false;
         }
     },
     "objs": {

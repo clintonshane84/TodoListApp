@@ -23,15 +23,9 @@
     </div>
 </div>
 <div id="modal-edit-task" class="modal">
-
-  <!-- [2] -->
   <div tabindex="-1" class="modal-win">
-
-    <!-- [3] -->
     <div role="dialog" aria-modal="true" aria-labelledby="modal-edit-task-title" >
-
       <header>
-        <!-- [4] -->
 		<button class="far fa-window-close pull-right modal-close-btn" type="button" onclick="mytodo.handlers.dialogs.default.close()" aria-label="Close modal">
 		</button>
         <h2 id="modal-edit-task-title">
@@ -48,25 +42,25 @@
 				<div class="col-md-6">
 					<div class="row p-t-2">
         				<label>Label</label>
-        				<input id="edit-task-input-label" :value="item.label" class="p-l-1"></input>
+        				<input id="edit-task-input-label" class="p-l-1"></input>
 					</div>
 					<div class="row p-t-2">
-        					<label :for="\'task-due_date-\' + item.id">Due Date</label>
-        					<input :id="\'task-due_date-\' + item.id" type="date" class="form-control" :value="item.due_date">
+        					<label for="edit-task-input-due-date">Due Date</label>
+        					<input id="edit-task-input-due-date" + item.id" type="date" class="form-control">
 					</div>
 					<div class="row p-t-2">
-    						<label :for="\'task-priority-\' + item.id">Priority</label>
-    						<input :id="\'task-priority-\' + item.id" class="form-control" type="range" min="0" max="9" step="1" :value="item.priority">
+    						<label for="edit-task-input-priority">Priority</label>
+    						<input id="edit-task-input-priority" class="form-control" type="range" min="0" max="9" step="1">
 					</div>
 				</div>
 				<div class="col-md-6">
 					<label for="">Description</label>
-					<textarea :id="\'task-description-\' + item.id" rows="8" cols="30" :value="item.description"></textarea>
+					<textarea id="edit-task-input-description" rows="8" cols="30"></textarea>
 				</div>
 				<div class="row pull-right p-t-2">
 					<div class="col-md-12">
 						<button class="btn btn-danger" type="button" onclick="mytodo.handlers.dialogs.default.close()">Cancel</button>
-						<button class="btn btn-success">Save Changes</button>
+						<button class="btn btn-success" type="button" onclick="mytodo.handlers.dialogs.default.saveChanges()">Save Changes</button>
 					</div>
 				</div>
 			</form>

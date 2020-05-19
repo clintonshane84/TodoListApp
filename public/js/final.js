@@ -48,7 +48,7 @@ mytodo.waitForMe(() => {
                     })
 
                 },
-                     () => {dialogs.alertify.error('Cancelled')}
+                     () => {mytodo.handlers.dialogs.alertify.error('Cancelled')}
                 );
             },
             createList : function(name) {
